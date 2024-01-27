@@ -94,8 +94,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: infra-artifact
-    - name: Display structure of downloaded files
-      run: ls -R
+        path: terraform/
 
     - name: Terraform Init
       id: init
@@ -113,4 +112,4 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform -chdir=terraform/ apply tfplan -no-color --auto-approve
+      run: terraform -chdir=terraform/ apply tfplan -no-color 
