@@ -1,0 +1,26 @@
+name: cicd
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - devel
+      - stage
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4.0.1
+      with:
+        node-version: 16
+        
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run build
+      run: npm run build
