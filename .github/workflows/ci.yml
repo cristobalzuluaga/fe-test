@@ -67,8 +67,8 @@ jobs:
       id: validate
       run: terraform -chdir=terraform/ validate -no-color
 
-    - name: Terraform Init
-      id: init
+    - name: Terraform Plan
+      id: plan
       run: terraform -chdir=terraform/ plan -out=tfplan -no-color
 
     - name: Upload tfplan artifact
