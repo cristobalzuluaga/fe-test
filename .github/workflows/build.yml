@@ -2,6 +2,8 @@ name: Build Application
 
 on:  
   push:
+    branches:
+      - '**'
 
 jobs:
   build-infra:
