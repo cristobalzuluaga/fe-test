@@ -74,7 +74,7 @@ jobs:
     - name: Upload tfplan artifact
       uses: actions/upload-artifact@v4
       with:
-        name: plan-artifact
+        name: infra-artifact
         path: terraform/tfplan
         retention-days: 1
 
