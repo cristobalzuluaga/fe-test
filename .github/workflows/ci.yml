@@ -24,3 +24,6 @@ jobs:
 
     - name: Run build
       run: npm run build
+
+    - name: Check envs
+      run: env
