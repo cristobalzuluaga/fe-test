@@ -1,0 +1,22 @@
+{
+  "bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "fe-static-codechallenges-dev"
+  },
+  "cloudfront_dist": {
+    "sensitive": false,
+    "type": "string",
+    "value": "E9WB7O2S0UWJ5"
+  },
+  "cloudfront_domain": {
+    "sensitive": false,
+    "type": "string",
+    "value": "d3q6zvbh9vb7rr.cloudfront.net"
+  },
+  "env": {
+    "sensitive": false,
+    "type": "string",
+    "value": "dev"
+  }
+}
