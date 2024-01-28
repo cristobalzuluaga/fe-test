@@ -1,5 +1,5 @@
-variable "branch_ref" {
-  description = "branch reference that contains 'refs/heads/branch'"
-  default     = "refs/heads/dev"
+variable "branch_name" {
+  description = "branch name of the build"
+  default     = "dev"
 }
 

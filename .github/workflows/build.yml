@@ -25,7 +25,7 @@ jobs:
 
     - name: Terraform Init
       id: init
-      run: terraform -chdir=terraform/ init
+      run: terraform -chdir=terraform/ init -backend-config="key=dev/terraform.tfstate"
 
     - name: Terraform Validate
       id: validate
