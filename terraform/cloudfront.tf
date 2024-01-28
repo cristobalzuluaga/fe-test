@@ -1,5 +1,5 @@
 locals {
-  s3_origin_id = "myS3Origin"
+  s3_origin_id = "S3Origin_${local.env}"
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {
@@ -75,7 +75,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = local.env
   }
 
   viewer_certificate {
