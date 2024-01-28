@@ -27,6 +27,10 @@ jobs:
       id: init
       run: terraform -chdir=terraform/ init
 
+    - name: Terraform Plan
+      id: plan
+      run: terraform -chdir=terraform/ init
+
     - name: Manual Approval
       uses: trstringer/manual-approval@v1
       with:
@@ -49,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: out-artifact
-        path: terraform/tfout.json
+        path: tfout.json
         retention-days: 1
 
   deploy-app:
