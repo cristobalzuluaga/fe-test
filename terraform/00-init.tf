@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-east-1"
   default_tags {
     tags = {
-      env = local.env
+      env     = local.env
       project = "codechallenge"
     }
   }
@@ -18,5 +18,5 @@ terraform {
 
 locals {
   branch_name = split("refs/heads/", var.branch_ref)[1]
-  env = local.branch_name == "main" ? "prod": local.branch_name
+  env         = local.branch_name == "main" ? "prod" : local.branch_name
 }

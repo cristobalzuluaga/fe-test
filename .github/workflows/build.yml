@@ -22,7 +22,6 @@ jobs:
     - name: Terraform fmt
       id: fmt
       run: terraform -chdir=terraform/ fmt -check
-      continue-on-error: true
 
     - name: Terraform Init
       id: init
