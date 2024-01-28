@@ -1,21 +1,21 @@
-name: Deploy Application and Infrastructure
+name: Deploy Application
 
 on:
-  workflow_run:
-    workflows: ["Build Application"]
-    types:
-      - completed
+  push:
     branches:
-      - devel
+      - dev
       - stage
-      - main
+      - prod
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-east-1
+  TF_VAR_branch_name: ${{ github.ref_name }}
 
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
     - uses: actions/checkout@v3
@@ -23,16 +23,15 @@ jobs:
       with:
         terraform_version: "1.1.7"
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: infra-artifact
-        path: terraform/
-
     - name: Terraform Init
       id: init
-      run: terraform -chdir=terraform/ init
+      run: terraform -chdir=terraform/ init -backend-config="key=$TF_VAR_branch_name/terraform.tfstate"
 
-    - name: Manual Approval
+    - name: Terraform Plan
+      id: plan
+      run: terraform -chdir=terraform/ plan
+
+    - name: Infra Approval
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ github.TOKEN }}
@@ -44,14 +43,55 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform -chdir=terraform/ apply tfplan -no-color 
+      run: terraform -chdir=terraform/ apply  -auto-approve -no-color 
+
+    - name: Terraform Outputs
+      id: outputs
+      run: terraform -chdir=terraform/ output -json > tfout.json
+
+    - name: Upload tfout artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: out-artifact
+        path: tfout.json
+        retention-days: 1
 
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-infra
+
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/checkout@v3
+    - name: Download tfout artifact
+      uses: actions/download-artifact@v4
       with:
-        name: build-artifact
-    - name: Display structure of downloaded files
-      run: ls -R
+        name: out-artifact
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4.0.1
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run build
+      run: npm run build
+
+    - name: Deploy to S3
+      run: |
+        bucket_name=$(cat tfout.json | jq -r .bucket_name.value)
+        aws s3 sync ./build/ s3://${bucket_name}/ --delete --quiet
+    
+    - name: Cloudfront cache invalidation
+      run: |
+        cf_dist=$(cat tfout.json | jq -r .cloudfront_dist.value)
+        invalidation_output=$(aws cloudfront create-invalidation --distribution-id ${cf_dist} --paths "/*")
+        invalidation_id=$(echo $invalidation_output | jq -r '.Invalidation.Id')
+        status="InProgress"
+        while [ "$status" == "InProgress" ]; do
+            sleep 30
+            status=$(aws cloudfront get-invalidation --distribution-id $cf_dist --id $invalidation_id | jq -r '.Invalidation.Status')
+            echo "Invalidation status: $status"
+        done
+        echo "Invalidation completed."

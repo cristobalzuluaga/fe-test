@@ -1,5 +1,5 @@
 locals {
-  s3_origin_id = "myS3Origin"
+  s3_origin_id = "S3Origin_${local.env}"
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {
@@ -69,13 +69,9 @@ resource "aws_cloudfront_distribution" "this" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "whitelist"
-      locations        = ["US", "CA", "GB", "DE"]
+      restriction_type = "none"
+      locations        = []
     }
-  }
-
-  tags = {
-    Environment = "production"
   }
 
   viewer_certificate {
