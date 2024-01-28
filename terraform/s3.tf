@@ -1,14 +1,9 @@
 resource "aws_s3_bucket" "this" {
   bucket = "fe-static-codechallenges-${local.env}"
-
-  tags = {
-    Name    = "tf-state"
-    project = "codechallenge"
-  }
 }
 
 resource "aws_s3_bucket_policy" "cloudfront_policy" {
-  bucket = aws_s3_bucket.example.id
+  bucket = aws_s3_bucket.this.id
   policy = data.aws_iam_policy_document.cloudfront_access.json
 }
 
