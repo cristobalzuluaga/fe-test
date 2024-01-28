@@ -9,3 +9,7 @@ output "cloudfront_domain" {
 output "bucket_name" {
   value = aws_s3_bucket.this.id
 }
+
+output "env" {
+  value = local.env
+}

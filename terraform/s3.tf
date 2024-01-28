@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "this" {
-  bucket = "fe-static-codechallenges"
+  bucket = "fe-static-codechallenges-${local.env}"
 
   tags = {
     Name    = "tf-state"

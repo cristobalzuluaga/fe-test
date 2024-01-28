@@ -1,5 +1,11 @@
 provider "aws" {
   region = "us-east-1"
+  default_tags {
+    tags = {
+      env = local.env
+      project = "codechallenge"
+    }
+  }
 }
 
 terraform {
@@ -8,4 +14,9 @@ terraform {
     key    = "dev/terraform.tfstate"
     region = "us-east-1"
   }
+}
+
+locals {
+  branch_name = split("refs/heads/", var.branch_ref)[1]
+  env = local.branch_name == "main" ? "prod": local.branch_name
 }
