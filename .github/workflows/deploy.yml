@@ -1,4 +1,4 @@
-name: Deploy Application and Infrastructure
+name: Deploy Application
 
 on:
   push:
@@ -29,9 +29,9 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform -chdir=terraform/ init
+      run: terraform -chdir=terraform/ plan
 
-    - name: Manual Approval
+    - name: Infra Approval
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ github.TOKEN }}
