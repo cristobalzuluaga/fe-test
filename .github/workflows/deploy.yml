@@ -1,4 +1,4 @@
-name: Deploy Application and Infrastructure
+name: Deploy Application
 
 on:
   push:
@@ -29,9 +29,9 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform -chdir=terraform/ init
+      run: terraform -chdir=terraform/ plan
 
-    - name: Manual Approval
+    - name: Infra Approval
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ github.TOKEN }}
@@ -80,10 +80,18 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        bucket_name=$(cat tfout.json | jq .bucket_name.value)
-        aws s3 sync ./build/ s3://${bucket_name}/ --delete
+        bucket_name=$(cat tfout.json | jq -r .bucket_name.value)
+        aws s3 sync ./build/ s3://${bucket_name}/ --delete --quiet
     
     - name: Cloudfront cache invalidation
       run: |
-        cf_dist=$(cat tfout.json | jq .cloudfront_dist.value)
-        aws cloudfront create-invalidation --distribution-id ${cf_dist} --paths "/*"
+        cf_dist=$(cat tfout.json | jq -r .cloudfront_dist.value)
+        invalidation_output=$(aws cloudfront create-invalidation --distribution-id ${cf_dist} --paths "/*")
+        invalidation_id=$(echo $invalidation_output | jq -r '.Invalidation.Id')
+        status="InProgress"
+        while [ "$status" == "InProgress" ]; do
+            sleep 30
+            status=$(aws cloudfront get-invalidation --distribution-id $cf_dist --id $invalidation_id | jq -r '.Invalidation.Status')
+            echo "Invalidation status: $status"
+        done
+        echo "Invalidation completed."
