@@ -15,6 +15,9 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
 locals {
-  env = var.branch_name
+  account_id = data.aws_caller_identity.current.account_id
+  env        = var.branch_name
 }
+

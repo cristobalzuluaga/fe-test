@@ -6,10 +6,31 @@ resource "aws_s3_bucket" "this" {
     project = "codechallenge"
   }
 }
-# resource "aws_s3_bucket_acl" "b_acl" {
-#   bucket = aws_s3_bucket.this.id
-#   acl    = "private"
-# }
+
+resource "aws_s3_bucket_policy" "cloudfront_policy" {
+  bucket = aws_s3_bucket.example.id
+  policy = data.aws_iam_policy_document.cloudfront_access.json
+}
+
+data "aws_iam_policy_document" "cloudfront_access" {
+  statement {
+    sid       = "AllowCloudFrontServicePrincipal"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::fe-static-codechallenges-${local.env}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+      values   = ["arn:aws:cloudfront::${local.account_id}:distribution/${aws_cloudfront_distribution.this.id}"]
+    }
+  }
+}
 
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
