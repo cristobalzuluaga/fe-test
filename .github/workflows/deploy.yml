@@ -1,10 +1,7 @@
 name: Deploy Application and Infrastructure
 
 on:
-  workflow_run:
-    workflows: ["Build Application"]
-    types:
-      - completed
+  pull_request:
     branches:
       - dev
       - stage

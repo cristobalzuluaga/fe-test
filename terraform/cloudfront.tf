@@ -74,7 +74,6 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-
   viewer_certificate {
     cloudfront_default_certificate = true
   }
