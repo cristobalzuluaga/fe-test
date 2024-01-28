@@ -67,6 +67,13 @@ resource "aws_cloudfront_distribution" "this" {
 
   price_class = "PriceClass_200"
 
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+      locations = []
+    }
+  }
+
   viewer_certificate {
     cloudfront_default_certificate = true
   }
