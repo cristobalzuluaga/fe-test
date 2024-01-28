@@ -34,7 +34,7 @@ jobs:
 
     - name: Terraform Plan
       id: plan
-      run: terraform -chdir=terraform/ plan -no-color
+      run: terraform -chdir=terraform/ plan -detailed-exitcode -no-color
 
   build-app:
     runs-on: ubuntu-latest
